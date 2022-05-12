@@ -1,0 +1,52 @@
+<div class="container mb-5">
+    <nav class=" container navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+                {{#if admin}}
+            <h1 class="m-5 text-white">Productos Administrador</h1>
+            <a href="../productos/form?admin=true">
+                    <button type="button" class="btn bg-white">Crear Nuevo Producto</button>
+            </a>
+                {{else}}
+            <h1 class="m-5 text-white">Productos</h1>
+                {{/if}}
+        <form action="/api/carrito", method="post">
+                <button type="submit" class="btn bg-white">Crear Nuevo Carrito</button>
+        </form>
+        </div>
+    </nav>
+    <div class="container d-flex flex-wrap justify-content-around p-3">
+        {{#if admin}}
+        {{#each products}}
+        <div class="card m-3 text-center rounded" style="max-width: 18rem;">
+            <div>
+            <img class="card-img-top" src={{this.thumbnail}} style="max-width: 10rem;" alt="Card image cap">
+            </div>
+            <div class="card-body">
+                <label for="">Titulo</label>
+                <input class="card-title" value="{{this.nombre}}"></input>
+                <label for="">Precio</label>
+                <input class="card-title" value="{{this.price}}"></input>
+                <label for="">Stock</label>
+                <input class="card-title" value="{{this.stock}}"></input>
+                <form action="productos/{{this.id}}", method="put">
+                    <button type="submit" class="btn btn-dark">Editar</button>
+                </form>
+            </div>
+        </div>
+        {{/each}}
+        {{else}}
+        {{#each products}}
+        <div class="card m-3 text-center rounded" style="max-width: 18rem;">
+            <div>
+            <img class="card-img-top" src={{this.thumbnail}} style="max-width: 10rem;" alt="Card image cap">
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{this.nombre}}</h5>
+                <p class="card-text">{{this.price}}.</p>
+                <a href="#" class="btn btn-dark">Añadir al Carrito</a>
+            </div>
+        </div>
+        {{/each}}
+        {{/if}}
+    </div>
+</div>

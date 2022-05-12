@@ -1,0 +1,43 @@
+<div class="container mb-5">
+    <nav class=" container navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <h1 class="m-5 text-white">Carritos</h1>
+            <form action="/api/carrito" , method="post">
+                <button type="submit" class="btn bg-white">Crear Nuevo Carrito</button>
+            </form>
+        </div>
+    </nav>
+</div>
+<table class="table table-dark table-striped mt-5">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Fecha de Creacion</th>
+            <th scope="col">Cant de Productos</th>
+            <th scope="col">Acciones</th>
+        </tr>
+    </thead>
+    {{#if newCartId}}
+    <div class="alert alert-success" role="alert">
+        Nuevo Carrito creado, id: {{newCartId}}
+    </div>
+    {{/if}}
+    <tbody id="form">
+        {{#each carts}}
+        <tr>
+            <th scope="row">{{this.id}}</th>
+            <td>
+                {{this.timestamp}}
+            </td>
+            <td>{{this.products.length}}</td>
+            </td>
+            <td>
+                <a href="carrito/{{this.id}}/productos" , method="GET">
+                    <button type="submit" class="btn btn-info">Ver</button>
+                </a>
+            </td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+</div>

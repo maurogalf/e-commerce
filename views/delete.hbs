@@ -1,0 +1,42 @@
+<div class="container mb-5">
+    <nav class=" container navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <h1 class="m-5 text-white">Productos</h1>
+            <form action="/api/carrito", method="post">
+                <button type="submit" class="btn bg-white">Crear Nuevo Carrito</button>
+            </form>
+        </div>
+    </nav>
+</div>
+<table class="table table-dark table-striped mt-5">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nombre del Curso</th>
+            <th scope="col">Precio</th>
+            <th scope="col">Logo</th>
+            <th scope="col">Acciones</th>
+        </tr>
+    </thead>
+    <tbody id="form">
+        {{#each data}}
+        <tr>
+            <th scope="row">{{this.id}}</th>
+            <td>
+                {{this.nombre}}
+            </td>
+            <td>$ {{this.price}}
+            </td>
+            <td>
+                <img style="max-width: 50px;" src={{this.thumbnail}}>
+            </td>
+            <td>
+                <form action="delete/{{this.id}}", method="DELETE">
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+</div>
