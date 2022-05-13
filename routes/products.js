@@ -38,22 +38,30 @@ router.post('/form/newproduct', (req, res) => {
 
 // DELETE PRODUCTS
 router.delete('/:id', (req, res) => {
-    console.log("entro aca")
-    fs.readFile('./data/products.json', 'utf-8', (err, data) => {
-        if(err){
-            res.status(500).send('Error al leer el archivo');
-        }else{
-            const products = JSON.parse(data);
-            const newProducts = products.filter(product => product.id !== parseInt(req.params.id));
-            fs.writeFile('./data/products.json', JSON.stringify(newProducts), (err) => {
-                if(err){
-                    res.status(500).send('Error al escribir el archivo');
+    if(req.query.admin === 'true'){
+        fs.readFile('./data/products.json', 'utf-8', (err, data) => {
+            if(err){
+                res.status(500).send('Error al leer el archivo');
+            }else{
+                const products = JSON.parse(data);
+                const productDelete = products.find(product => product.id === parseInt(req.params.id));
+                if(productDelete){
+                    const newProducts = products.filter(product => product.id !== parseInt(req.params.id));
+                    fs.writeFile('./data/products.json', JSON.stringify(newProducts), (err) => {
+                        if(err){
+                            res.status(500).send('Error al escribir el archivo');
+                        }else{
+                            res.send('producto borrado');
+                        }
+                    });
                 }else{
-                    res.send('producto borrado');
+                    res.send('No existe el producto');
                 }
-            });
-        }
-    });
+            }
+        });
+    }else{
+        res.send({error: -1, description : 'No tienes permisos para acceder a esta ruta'});
+    }
 });
 
 router.get('/delete', (req, res) => {
@@ -84,9 +92,9 @@ router.get('/:id', (req, res) => {
             const products = JSON.parse(data);
             const productSelect = products.filter(product => product.id === Number(id));
             if(req.query.admin === 'true'){
-                res.render('products', {products: productSelect, admin: true});
+                res.render('products', {products: productSelect, admin: true, id: true});
             }else{
-            res.render('products', {products: productSelect});
+            res.render('products', {products: productSelect, admin: false, id: true});
         }
         }
     });

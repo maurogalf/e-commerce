@@ -109,25 +109,5 @@
     "thumbnail": "https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/267_Python_logo-128.png",
     "price": "200",
     "stock": 20
-  },
-  {
-    "id": 12,
-    "timestamp": "2020-01-01T00:00:00.000Z",
-    "nombre": "Curso de Javascript",
-    "descripcion": "Curso de Javascript",
-    "codigo": "JAVASCRIPT",
-    "thumbnail": "https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/187_Js_logo_logos-128.png",
-    "price": "200",
-    "stock": 20
-  },
-  {
-    "nombre": "Curso de Python",
-    "descripcion": "",
-    "codigo": "PY",
-    "thumbnail": "https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/267_Python_logo-128.png",
-    "price": "200",
-    "stock": "12",
-    "id": 13,
-    "timestamp": "12/5/2022 19:26:56"
   }
 ]

@@ -3,12 +3,25 @@
         <div class="container-fluid">
                 {{#if admin}}
             <h1 class="m-5 text-white">Productos Administrador</h1>
-            <a href="../productos/form?admin=true">
-                    <button type="button" class="btn bg-white">Crear Nuevo Producto</button>
+            <a href="./productos/form?admin=true">
+                <button type="button" class="btn bg-white">Crear Nuevo Producto</button>
             </a>
+                {{#if id}}
+                    <a href="../productos?admin=true">
+                        <button type="button" class="btn bg-white">Ver Productos</button>
+                    </a>
+                {{/if}}
                 {{else}}
             <h1 class="m-5 text-white">Productos</h1>
+                {{#if id}}
+                    <a href="../productos">
+                        <button type="button" class="btn bg-white">Ver Productos</button>
+                    </a>
                 {{/if}}
+                {{/if}}
+        <form action="/api/carrito" , method="get">
+            <button type="submit" class="btn bg-white">Ver Carritos</button>
+        </form>
         <form action="/api/carrito", method="post">
                 <button type="submit" class="btn bg-white">Crear Nuevo Carrito</button>
         </form>
@@ -22,13 +35,13 @@
             <img class="card-img-top" src={{this.thumbnail}} style="max-width: 10rem;" alt="Card image cap">
             </div>
             <div class="card-body">
+                <form action="productos/{{this.id}}?admin=true", method="put">
                 <label for="">Titulo</label>
                 <input class="card-title" value="{{this.nombre}}"></input>
                 <label for="">Precio</label>
                 <input class="card-title" value="{{this.price}}"></input>
                 <label for="">Stock</label>
                 <input class="card-title" value="{{this.stock}}"></input>
-                <form action="productos/{{this.id}}", method="put">
                     <button type="submit" class="btn btn-dark">Editar</button>
                 </form>
             </div>
@@ -43,7 +56,9 @@
             <div class="card-body">
                 <h5 class="card-title">{{this.nombre}}</h5>
                 <p class="card-text">{{this.price}}.</p>
-                <a href="#" class="btn btn-dark">Añadir al Carrito</a>
+                <form action="../api/carrito",method="get">
+                    <button type="submit" class="btn btn-dark">Añadir al Carrito</button>
+                </form>
             </div>
         </div>
         {{/each}}

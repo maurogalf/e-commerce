@@ -6,6 +6,7 @@ const {Router} = express;
 
 const router = Router();
 
+// VER CARRITOS
 router.get('/', (req, res) => {
     fs.readFile('./data/cart.json', 'utf-8', (err, data) => {
         if(err){
@@ -19,6 +20,7 @@ router.get('/', (req, res) => {
 }
 );
 
+// NUEVO CARRITO
 router.post('/', (req, res) => {
     fs.readFile('./data/cart.json', 'utf-8', (err, data) => {
         if(err){
@@ -54,26 +56,32 @@ router.post('/', (req, res) => {
     });
 });
 
+// ELIMINAR CARRITO
 router.delete('/:id', (req, res) => {
     fs.readFile('./data/cart.json', 'utf-8', (err, data) => {
         if(err){
             res.status(500).send('Error al leer el archivo');
         }else{
             const cart = JSON.parse(data);
-            const newCart = cart.filter(cart => cart.id !== parseInt(req.params.id));  
-            fs.writeFile('./data/cart.json', JSON.stringify(newCart), (err) => {
-                if(err){
-                    res.status(500).send('Error al escribir el archivo');
-                }else{
-                    res.send('carrito borrado'+ JSON.stringify(newCart));
+            const cartDelete = cart.find(cart => cart.id === parseInt(req.params.id));
+            if(cartDelete){
+                const newCart = cart.filter(cart => cart.id !== parseInt(req.params.id));  
+                fs.writeFile('./data/cart.json', JSON.stringify(newCart), (err) => {
+                    if(err){
+                        res.status(500).send('Error al escribir el archivo');
+                    }else{
+                        res.send('Carrito borrado numero: '+ req.params.id);
+                    }
                 }
-            }
-            );
+                );
+        }else{
+            res.send('No existe el carrito');
         }
     }
-    );
+});
 });
 
+// VER DETALLE DE CARRITO
 router.get('/:id/productos', (req, res) => {
     fs.readFile('./data/cart.json', 'utf-8', (err, data) => {
         if(err){
@@ -96,7 +104,7 @@ router.get('/:id/productos', (req, res) => {
 }
 );
 
-
+// AGREGAR PRODUCTO A CARRITO
 router.post('/:id/productos/:id_prod', (req, res) => {
     fs.readFile('./data/cart.json', 'utf-8', (err, data) => {
         if(err){
@@ -121,7 +129,7 @@ router.post('/:id/productos/:id_prod', (req, res) => {
                         if(err){
                             res.status(500).send('Error al escribir el archivo');
                         }else{
-                            res.redirect('.');
+                            res.redirect('../productos');
                         }
                     }
                     );
@@ -134,10 +142,41 @@ router.post('/:id/productos/:id_prod', (req, res) => {
 }
 );
 
-router.delete('/', (req, res) => {
-    res.send('Hello World');
+router.delete('/:id/productos/:id_prod', (req, res) => {
+    fs.readFile('./data/cart.json', 'utf-8', (err, data) => {
+        if(err){
+            res.status(500).send('Error al leer el archivo');
+        }else{
+            const cart = JSON.parse(data);
+            const cartId = parseInt(req.params.id);
+            const productId = parseInt(req.params.id_prod);
+            cartIndex = cart.findIndex(cart => cart.id === cartId);
+            console.log(cartIndex);
+            if(cartIndex !== -1){
+                let productIndex = cart[cartIndex].products.findIndex(product => product.id === productId);
+                console.log(productIndex);
+                if(productIndex !== -1){
+                    cart[cartIndex].products.splice(productIndex, 1);
+                    fs.writeFile('./data/cart.json', JSON.stringify(cart), (err) => {
+                        if(err){
+                            res.status(500).send('Error al escribir el archivo');
+                        }else{
+                            res.send('Producto eliminado');
+                        }
+                    }
+                    );
+                }else{
+                    res.send('No existe el producto');
+                }
+            }else{
+                res.send('No existe el carrito');
+            }
+        }
+    }
+    );
 }
 );
+
 
 
 module.exports = router;
