@@ -1,11 +1,25 @@
 const express = require('express');
-const fs = require('fs');
+
+// Ir comentando y descomentando para cambiar entre las diferentes implementaciones
+// MongoDB
+const MongoAtlasDAO = require('../daos/productos/MongoAtlasDAO');
+let DaoInstance = new MongoAtlasDAO();
+
+// FireBase
+// const fireBaseDAO = require('../daos/productos/fireBaseDAO');
+// let DaoInstance = new fireBaseDAO();
+
+// FireSystem
+// const fsDAO = require('../daos/productos/fsDAO');
+// let DaoInstance = new fsDAO();
+
 
 const {Router} = express;
 
 const router = Router();
 
-// NEW PRODUCTS
+
+// RENDER NEW PRODUCTS
 router.get('/form', (req, res) => {
     if(req.query.admin === 'true'){
         res.render('form');
@@ -14,137 +28,106 @@ router.get('/form', (req, res) => {
     }
 });
 
+// SAVE NEW PRODUCT
 router.post('/form/newproduct', (req, res) => {
-    fs.readFile('./data/products.json', 'utf-8', (err, data) => {
-        if(err){
-            res.status(500).send('Error al leer el archivo');
-        }else{
-            const products = JSON.parse(data);
-            const newProduct = req.body;
-            newProduct.id = products.length + 1;
-            newProduct.timestamp = new Date().toLocaleString();
-            products.push(newProduct);
-            fs.writeFile('./data/products.json', JSON.stringify(products), (err) => {
-                if(err){
-                    res.status(500).send('Error al escribir el archivo');
-                }else{
-                    res.redirect('/api/productos');
-                }
+    if(req.query.admin === 'true'){
+        DaoInstance.getAllProducts().then((data) => {
+            let newProduct = req.body;
+            newProduct.id = data.length + 1;
+            newProduct.timestamp = new Date();
+            DaoInstance.newProduct(newProduct).then((data) => {
+                res.redirect('/api/productos');
+            }).catch((err) => {
+                res.send({error: -1, description: 'Error al guardar el producto'});
             });
-        }
-    });
+        }).catch((err) => {
+            res.send({error: -1, description: 'Error al leer la coleccion'});
+        });
+    }else{
+        res.send({error: -1, description : 'No tienes permisos para acceder a esta ruta'});
+    }
 });
+
 
 
 // DELETE PRODUCTS
 router.delete('/:id', (req, res) => {
     if(req.query.admin === 'true'){
-        fs.readFile('./data/products.json', 'utf-8', (err, data) => {
-            if(err){
-                res.status(500).send('Error al leer el archivo');
-            }else{
-                const products = JSON.parse(data);
-                const productDelete = products.find(product => product.id === parseInt(req.params.id));
-                if(productDelete){
-                    const newProducts = products.filter(product => product.id !== parseInt(req.params.id));
-                    fs.writeFile('./data/products.json', JSON.stringify(newProducts), (err) => {
-                        if(err){
-                            res.status(500).send('Error al escribir el archivo');
-                        }else{
-                            res.send('producto borrado');
-                        }
-                    });
-                }else{
-                    res.send('No existe el producto');
-                }
-            }
+        DaoInstance.deleteProduct(req.params.id).then((data) => {
+            res.send({error: 0, description: 'Producto eliminado correctamente'});
+        }).catch((err) => {
+            res.send({error: -1, description: 'Error al eliminar el producto'});
         });
     }else{
         res.send({error: -1, description : 'No tienes permisos para acceder a esta ruta'});
     }
 });
 
+// DELETE VIEW
 router.get('/delete', (req, res) => {
     if(req.query.admin === 'true'){
-        fs.readFile('./data/products.json', (err, data) => {
-            if(err){
-                res.send('No se pudo leer el archivo');
-            }else{
-                let products = JSON.parse(data);
-                res.render('delete', {data:products});
-            }
+        DaoInstance.getAllProducts().then((data) => {
+            res.render('delete', {data:products});
+        }).catch((err) => {
+            res.send({error: -1, description: 'Error al leer la coleccion'});
         });
     }else{
         res.send({error: -1, description : 'No tienes permisos para acceder a esta ruta'});
     }
 });
 
-
-
-
-//PRODUCTS
+//PRODUCT BY ID
 router.get('/:id', (req, res) => {
-    const id = req.params.id;
-    fs.readFile('./data/products.json', 'utf-8', (err, data) => {
-        if(err){
-            res.status(500).send('Error al leer el archivo');
+    let id = Number(req.params.id);
+    DaoInstance.getProductById(id).then((data) => {
+        if(req.query.admin === 'true'){
+            res.render('products', {products: data, admin: true, id: true});
         }else{
-            const products = JSON.parse(data);
-            const productSelect = products.filter(product => product.id === Number(id));
-            if(req.query.admin === 'true'){
-                res.render('products', {products: productSelect, admin: true, id: true});
-            }else{
-            res.render('products', {products: productSelect, admin: false, id: true});
+            res.render('products', {products: data, admin: false, id: true});
         }
-        }
+    }).catch((err) => {
+        res.send({error: -1, description: 'Error al leer la coleccion'});
     });
 });
 
+
+// GET ALL PRODUCTS
 router.get('/', (req, res) => {
-    fs.readFile('./data/products.json', 'utf-8', (err, data) => {
-        if(err){
-            res.status(500).send('Error al leer el archivo');
+    DaoInstance.getAllProducts().then((data) => {
+        if(req.query.admin === 'true'){
+            res.render('products', {products: data, admin: true});  
         }else{
-            const products = JSON.parse(data);
-            if(req.query.admin === 'true'){
-                res.render('products', {products: products, admin: true});
-            }else{
-                res.render('products', {products: products});
+            res.render('products', {products: data, admin: false});
         }
-    }
+    }).catch((err) => {
+        res.send({error: -1, description: 'Error al leer la coleccion'});
     });
 });
+
+
+
 
 
 // EDIT PRODUCTS
 router.put('/:id', (req, res) => {
     if(req.query.admin === 'true'){
-        fs.readFile('./data/products.json', 'utf-8', (err, data) => {
-            if(err){
-                res.status(500).send('Error al leer el archivo');
-            }else{
-                const products = JSON.parse(data);
-                const id = req.params.id;
-                const index = products.findIndex(product => product.id === Number(id));
-                if(index >= 0){
-                    products[index].nombre = req.body.nombre;
-                    products[index].price = req.body.price;
-                    products[index].stock = req.body.stock;
-                    fs.writeFile('./data/products.json', JSON.stringify(products), (err) => {
-                    if(err){
-                        res.status(500).send('Error al escribir el archivo');
-                    }else{
-                        res.redirect('/api/productos');
-                    }
-                });
-                }else{
-                    res.send('No se encontro el producto');
-                }
-            }
+        DaoInstance.getAllProducts().then((data) => {
+            let productUpdated = data.find(product => product.id == req.params.id);
+            productUpdated.nombre = req.body.nombre;
+            productUpdated.price = req.body.price;
+            productUpdated.stock = req.body.stock;
+            DaoInstance.updateProduct(productUpdated).then((data) => {
+                res.send({error: 0, description: 'Producto actualizado correctamente'});
+            }).catch((err) => {
+                res.send({error: -1, description: 'Error al actualizar el producto'});
+            });
+        }).catch((err) => {
+            res.send({error: -1, description: 'Error al leer la coleccion'});
         });
     }else{
         res.send({error: -1, description : 'No tienes permisos para acceder a esta ruta'});
     }
 });
+
 
 module.exports = router;

@@ -2,6 +2,7 @@ const express = require('express');
 const productsRoutes = require('./routes/products');
 const cartRoutes = require('./routes/cart');
 
+
 const app = express();
 
 // ARCHIVOS ESTATICOS
