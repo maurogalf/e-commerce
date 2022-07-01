@@ -4,32 +4,22 @@ class ContenedorArchivo {
     constructor(ruta){
         this.ruta = `./data/${ruta}`;
     }
-    //CREATE PRODUCT
+    //CREATE
     async newOne(object){
         try{
-            const docs = await this.getAll();
-                let doc = object;
-                doc.id = docs.length + 1;
-                doc.timestamp = new Date();
-                docs.push(doc);
-                fs.writeFile(this.ruta, JSON.stringify(docs), (err) => {
-                    if(err){
-                        console.log(err);
-                    }else{
-                        console.log('Producto guardado correctamente');
-                        return docs;
-                    }
-                });
+            const docs = await this.getAll()
+            docs.push(object);
+            const response = await this.save(docs)
+            return response;
     }catch{
         console.log(err);
     }
     }
 
-    //READ PRODUCTS
+    //READ
     async getAll(){
         try{
             let data = await fs.readFile(this.ruta, 'utf-8');
-            console.log("pasa por aca")
             return JSON.parse(data);
         }catch(err){
             console.log(err);
@@ -37,19 +27,19 @@ class ContenedorArchivo {
         }
     }
 
-    //READ PRODUCT BY ID
+    //READ BY ID
     async getById(id){
         try{
             let docs = await this.getAll();
-            let doc = docs.filter(doc => doc.id == id);
+            let doc = docs.find(doc => doc.id == id);
             return doc;
         }catch(err){
             console.log(err);
-            return[];
+            return{};
         }
     }
 
-    //UPDATE PRODUCT
+    //UPDATE 
     async update(object){
         try{
             let docs = await this.getAll();
@@ -58,19 +48,15 @@ class ContenedorArchivo {
                         docs[i] = object;
                     }
                 }
-            fs.writeFile(this.ruta, JSON.stringify(docs), (err) => {
-                if(err){
-                    console.log(err);
-                }else{
-                    console.log('Document updated successfully');
-                }
-            });
+            const response = await this.save(docs)
+            console.log("products updated successfully")
+            return null
             }
         catch(err){
             console.log(err);
         }
     }
-    //DELETE PRODUCT
+    //DELETE 
     async delete(id){
         try{
             let docs = await this.getAll()
@@ -79,17 +65,24 @@ class ContenedorArchivo {
                         docs.splice(i, 1);
                     }
                 }
-                fs.writeFile(this.ruta, JSON.stringify(docs), (err) => {
-                    if(err){
-                        console.log(err);
-                    }else{
-                        console.log('Deleted successfully');
-                    }
-                });
+                const response = await this.save(docs)
+                return null;
             }
         catch(err){
             console.log(err);
         };
+    }
+
+    //SAVE DOCS
+    async save(docs){
+        fs.writeFile(this.ruta, JSON.stringify(docs), (err) => {
+            if(err){
+                console.log(err);
+            }else{
+                console.log('Document saved successfully');
+                return docs;
+            }
+        })
     }
 }
 

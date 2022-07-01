@@ -1,6 +1,8 @@
 let carritosDao;
 let productosDao;
-
+/* 
+La variable de entorno la pongo aca porque no se porque no me deja configurarla en el script de "npm start"
+*/
 let variableDeEntorno = "firebase"
 
 switch (variableDeEntorno) {

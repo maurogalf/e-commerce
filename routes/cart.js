@@ -63,12 +63,13 @@ router.get('/:id/productos', (req, res) => {
 router.post('/:id/productos/:id_prod', (req, res) => {
     const cartId = parseInt(req.params.id);
     const productId = parseInt(req.params.id_prod);
-    carritosDao.getAll().then((data) => {
-        const cart = data.find(cart => cart.id == cartId)
-        productosDao.getAll().then((data) => {
-            const product = data.find(product => product.id == productId);
+    carritosDao.getById(cartId).then((dataCart) => {
+        const cart = dataCart;
+        productosDao.getById(productId).then((dataProduct) => {
+            const product = dataProduct
             cart.products.push(product);
-            carritosDao.update(cart).then((data) => {
+            console.log(cart)
+            carritosDao.update(cart).then(() => {
                 res.redirect('../productos')
             }).catch((err) => {
                 res.send({ error: err, description: 'Error al actualizar el carrito' });

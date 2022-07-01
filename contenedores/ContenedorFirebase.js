@@ -29,7 +29,11 @@ class ContenedorFirebase {
     //CREATE 
     async newOne(object) {
         try {
-            const newOneObject = await this.collection.add(object);
+            /*
+            no puedo crear un documento con el id que tiene adentro el producto o carrito
+            */
+            const newOne = this.collection.doc(object.id)
+            await newOne.create(object);
             return this.collection
         } catch (err) {
             console.log(err);
@@ -39,11 +43,8 @@ class ContenedorFirebase {
     //READ ALL
     async getAll() {
             try {
-                const querySnapshot = await this.collection.get();
-                let docs = querySnapshot.docs;
-                const response = docs.map((doc) => {
-                    return doc.data();
-                });
+                const docs = (await this.collection.get()).docs;
+                const response = docs.map(doc => doc.data())
                 return response;
             } catch (err) {
                 console.log(err);
@@ -54,23 +55,27 @@ class ContenedorFirebase {
     //READ BY ID
     async getById(id) {
         try {
-            const doc = this.collection.doc(id);
-            const item = await doc.get();
-            const response = item.data();
-            return response;
+            let docs = await this.getAll();
+            let doc = docs.find(doc => doc.id == id);
+            if (!doc) {
+                throw new Error(`Error al listar por id: no se encontró`)
+            } else {
+            return doc;
+            }
         } catch (err) {
             console.log(err);
             return [];
         }
     }
 
+
+    /*
+    no se como hacer para buscar dentro de una coleccion sin tener el ID de fuera del producto
+    */
     //UPDATE 
     async update(object) {
         try {
-            console.log(object.id)
-            const doc = await this.collection.doc(object.id)
-            doc.set(object);
-            console.log('Product updated');
+            const doc = await this.collection.doc(object.id).set(object)
             return null;
         } catch (err) {
             console.log(err);
