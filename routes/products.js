@@ -1,25 +1,12 @@
-const express = require('express');
-
-// Ir comentando y descomentando para cambiar entre las diferentes implementaciones
-// MongoDB
-const MongoAtlasDAO = require('../daos/productos/MongoAtlasDAO');
-let DaoInstance = new MongoAtlasDAO();
-
-// FireBase
-// const fireBaseDAO = require('../daos/productos/fireBaseDAO');
-// let DaoInstance = new fireBaseDAO();
-
-// FireSystem
-// const fsDAO = require('../daos/productos/fsDAO');
-// let DaoInstance = new fsDAO();
-
+import express from 'express';
+import { productosDao } from '../daos/index.js';
 
 const {Router} = express;
 
 const router = Router();
 
 
-// RENDER NEW PRODUCTS
+// NEW PRODUCT
 router.get('/form', (req, res) => {
     if(req.query.admin === 'true'){
         res.render('form');
@@ -31,11 +18,11 @@ router.get('/form', (req, res) => {
 // SAVE NEW PRODUCT
 router.post('/form/newproduct', (req, res) => {
     if(req.query.admin === 'true'){
-        DaoInstance.getAllProducts().then((data) => {
+        productosDao.getAll().then((data) => {
             let newProduct = req.body;
             newProduct.id = data.length + 1;
             newProduct.timestamp = new Date();
-            DaoInstance.newProduct(newProduct).then((data) => {
+            productosDao.newOne(newProduct).then((data) => {
                 res.redirect('/api/productos');
             }).catch((err) => {
                 res.send({error: -1, description: 'Error al guardar el producto'});
@@ -53,7 +40,7 @@ router.post('/form/newproduct', (req, res) => {
 // DELETE PRODUCTS
 router.delete('/:id', (req, res) => {
     if(req.query.admin === 'true'){
-        DaoInstance.deleteProduct(req.params.id).then((data) => {
+        productosDao.delete(req.params.id).then((data) => {
             res.send({error: 0, description: 'Producto eliminado correctamente'});
         }).catch((err) => {
             res.send({error: -1, description: 'Error al eliminar el producto'});
@@ -66,7 +53,7 @@ router.delete('/:id', (req, res) => {
 // DELETE VIEW
 router.get('/delete', (req, res) => {
     if(req.query.admin === 'true'){
-        DaoInstance.getAllProducts().then((data) => {
+        productosDao.getAll().then((data) => {
             res.render('delete', {data:products});
         }).catch((err) => {
             res.send({error: -1, description: 'Error al leer la coleccion'});
@@ -79,7 +66,7 @@ router.get('/delete', (req, res) => {
 //PRODUCT BY ID
 router.get('/:id', (req, res) => {
     let id = Number(req.params.id);
-    DaoInstance.getProductById(id).then((data) => {
+    productosDao.getById(id).then((data) => {
         if(req.query.admin === 'true'){
             res.render('products', {products: data, admin: true, id: true});
         }else{
@@ -93,7 +80,7 @@ router.get('/:id', (req, res) => {
 
 // GET ALL PRODUCTS
 router.get('/', (req, res) => {
-    DaoInstance.getAllProducts().then((data) => {
+    productosDao.getAll().then((data) => {
         if(req.query.admin === 'true'){
             res.render('products', {products: data, admin: true});  
         }else{
@@ -111,12 +98,12 @@ router.get('/', (req, res) => {
 // EDIT PRODUCTS
 router.put('/:id', (req, res) => {
     if(req.query.admin === 'true'){
-        DaoInstance.getAllProducts().then((data) => {
+        productosDao.getAll().then((data) => {
             let productUpdated = data.find(product => product.id == req.params.id);
             productUpdated.nombre = req.body.nombre;
             productUpdated.price = req.body.price;
             productUpdated.stock = req.body.stock;
-            DaoInstance.updateProduct(productUpdated).then((data) => {
+            productosDao.update(productUpdated).then((data) => {
                 res.send({error: 0, description: 'Producto actualizado correctamente'});
             }).catch((err) => {
                 res.send({error: -1, description: 'Error al actualizar el producto'});
@@ -130,4 +117,4 @@ router.put('/:id', (req, res) => {
 });
 
 
-module.exports = router;
+export default router;

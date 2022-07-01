@@ -1,6 +1,11 @@
-const express = require('express');
-const productsRoutes = require('./routes/products');
-const cartRoutes = require('./routes/cart');
+import express from 'express';
+import productsRoutes from './routes/products.js';
+import cartRoutes from './routes/cart.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 
 const app = express();
@@ -8,7 +13,7 @@ const app = express();
 // ARCHIVOS ESTATICOS
 app.use(express.static('views/layouts'));
 
-const handlebars = require('express-handlebars');
+import handlebars from 'express-handlebars';
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
